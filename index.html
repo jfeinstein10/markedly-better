@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Markedly Better</title>
+
+        <link rel="stylesheet" href="./static/css/bootstrap.css" />
+        <link rel="stylesheet" href="./static/css/style.css" />
+        <link rel="stylesheet" href="./libs/jqTree/jqtree.css" />
+        <link rel="stylesheet" href="./static/css/font-awesome.css" />
+        <link rel="stylesheet" href="./static/fonts/Sans/cmun-sans.css" />
+        <link rel="stylesheet" href="./static/fonts/Typewriter/cmun-typewriter.css" />
+
+        <link rel="stylesheet" href="./libs/highlight/styles/default.css">
+        <script type="text/javascript" src="./libs/highlight/highlight.pack.js"></script>
+
+        <script type="text/javascript" src="./libs/html2canvas.js"></script>
+        <script type="text/javascript" src="./libs/keymaster.js"></script>
+        <script type="text/javascript" src="./libs/jquery.min.js"></script>
+        <script type="text/javascript" src="./libs/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="./libs/jquery-layout.min.js"></script>
+        <script type="text/javascript" src="./libs/jqTree/jqtree.js"></script>
+        <script type="text/javascript" src="./libs/jqTree/jqtree-contextmenu.js"></script>
+        <script type="text/javascript" src="./static/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="./libs/jspdf.min.js"></script>
+        <script src="http://ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+        <script type="text/javascript"
+            src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+            </script>
+        <script type="text/javascript" src="./libs/marked.js"></script>
+        <script>
+            marked.setOptions({
+                highlight: function (code) {
+                    return hljs.highlightAuto(code).value;
+                }
+            });
+        </script>
+        <script type="text/javascript" src="./static/js/preview.js"></script>
+        <script type="text/javascript" src="./static/js/filesystem.js"></script>
+
+        <script type="text/javascript" src="./libs/Blob.js"></script>
+        <script type="text/javascript" src="./libs/canvas-toBlob.js"></script>
+        <script type="text/javascript" src="./libs/FileSaver.js"></script>
+        <script>
+            $(function() {
+
+                var editor = ace.edit("editor");
+                editor.setTheme("ace/theme/solarized_dark");
+                editor.setKeyboardHandler("ace/keyboard/vim");
+                editor.getSession().setMode("ace/mode/latex");
+                var resizeEditor = function() {
+                    editor.resize();
+                };
+
+                $(".fontsize").click(function(e) {
+                    var fontsize = parseInt(e.target.innerHTML);
+                    console.log(fontsize);
+                    editor.setFontSize(fontsize);
+                });
+                $(".tabsize").click(function(e) {
+                    var tabsize = parseInt(e.target.innerHTML);
+                    console.log(tabsize);
+                    editor.getSession().setTabSize(tabsize);
+                });
+                $("#soft_tabs").change(function() {
+                    console.log(this.checked);
+                    editor.getSession().setUseSoftTabs(this.checked);
+                });
+                $("#show_invisibles").change(function() {
+                    console.log(this.checked);
+                    editor.renderer.setShowInvisibles(this.checked);
+                });
+                $("#wrap_lines").change(function() {
+                    console.log(this.checked);
+                    editor.getSession().setUseWrapMode(this.checked);
+                });
+                $("#highlight_line").change(function() {
+                    console.log(this.checked);
+                    editor.setHighlightActiveLine(this.checked);
+                });
+                $("#show_gutter").change(function() {
+                    console.log(this.checked);
+                    editor.renderer.setShowGutter(this.checked);
+                });
+
+                $(".theme").click(function(e) {
+                    var theme = e.target.innerHTML.toLowerCase().replace(/ /g,"_");
+                    editor.setTheme("ace/theme/"+theme);
+                });
+                $(".keyboardHandler").click(function(e) {
+                    var handler = e.target.innerHTML.toLowerCase();
+                    editor.setKeyboardHandler("ace/keyboard/"+handler);
+                });
+
+                var splitter = $("#splitter").layout({
+                    closable: true,
+                    resizable: true,
+                    slidable: true,
+                    livePaneResizing: true,
+                    east__size: 400,
+                    east__maxSize: .5,
+                    east__minSize: 300,
+                    west__maxSize: 250,
+                    west__minSize: 150,
+                    west__size: 200,
+                    fxName: "none",
+                    spacing_open: 16,
+                    spacing_closed: 16,
+                    center__onresize: resizeEditor,
+                });
+                editor.commands.addCommand({
+                    bindKey: {win:'Alt-p', mac:'Alt-p'},
+                    exec: function() {
+                        splitter.toggle("east");
+                    }
+                });
+                key('alt+p', function() {
+                    splitter.toggle("east");
+                });
+
+                // set up the previe with the buffer
+                var preview = new Preview($("#preview"), $("#buffer"));
+                editor.getSession().on("change", function(e) {
+                	currentFile.contents = editor.getValue();
+                    preview.update(editor.getValue());
+                });
+                var fs = new FileSystem();
+                var currentFile;
+                var getDir = function(name) {
+                    if (name === undefined) {
+                        return fs.root;
+                    }
+                    return new DirectoryDescriptor(name);
+                };
+                var $tree =$("#filesystem");
+                $tree.tree({
+                	data: fs.getTree(),
+                	dragAndDrop: true,
+                	autoOpen: 1,
+                    onCreateLi: function(node, $li) {
+                        if (node.isDirectory) {
+                            $li.find('.jqtree-title').before("<i class='fa fa-fw fa-folder'></i> ");
+                        } else {
+                            $li.find('.jqtree-title').before("<i class='fa fa-fw fa-file-o'></i> ");
+                        }
+                    },
+                    onCanMoveTo: function(moved, target, position) {
+                    	var can = false;
+                        if (position == "after" || position == "before") {
+                            can = target.parent.isDirectory || target.parent.name === undefined;
+                        } else {
+                            can = target.isDirectory;
+                        }
+                        return can;
+                    }
+                });
+                $tree.bind("tree.click", function(e) {
+                	var node = e.node;
+                    if (!node.isDirectory) {
+                    	currentFile = new FileDescriptor(node.name);
+                    	editor.setValue(currentFile.contents);
+                    }
+                });
+                $tree.jqTreeContextMenu($('#file-menu'), {
+                    "file-rename": function (node) { alert('Rename node: ' + node.name); },
+                    "file-export": function (node) { alert('Export node: ' + node.name); },
+                    "file-delete": function (node) { 
+                    	var dir = getDir(node.parent.name);
+                    	var file = new FileDescriptor(node.name);
+                    	dir.removeChild(file);
+                    	file.destroy();
+                    	$tree.tree('removeNode', node);
+                    }
+                });
+                $tree.bind("tree.move", function(e) {
+                	// create a pseudo descriptor
+                	var position = e.move_info.position;
+                    var moved = { storageIndex: e.move_info.moved_node.storageIndex };
+                    var prev = getDir(e.move_info.previous_parent.name);
+                    prev.removeChild(moved);
+                    var target; 
+                    if (position == "after" || position == "before") {
+                    	target = getDir(e.move_info.target_node.parent.name);
+                    } else {
+                        target = getDir(e.move_info.target_node.name);
+                    }
+                    target.addChild(moved);
+                });
+
+                var openModal = function(title, body, button, callback) {
+                	$("#modalTitle").html(title);
+                	$("#modalBody").html(body);
+                	$("#modalButton").html(button);
+                    $("#modalButton").unbind();
+                	$("#modalButton").click(callback);
+                    $("#modal").modal({
+                    	keyboard: true
+                    });
+                }
+                var input = '<input class="form-control" id="modalName" placeholder="Name"></input>';
+
+                // handle new
+                $('#menu-new-file').click(function() {
+                    openModal("Create a New Document", input, "Create", function() {
+                    	var title = $("#modalName").val();
+                    	var file = new FileDescriptor(title);
+                    	fs.root.addChild(file);
+                    	$tree.tree("appendNode", file.getTreeRep());
+                    	$("#modal").modal('hide');
+                    });
+                });
+                $("#menu-new-folder").click(function() {
+                    openModal("Create a New Folder", input, "Create", function() {
+                    	var title = $("#modalName").val();
+                    	var dir = new DirectoryDescriptor(title);
+                    	fs.root.addChild(dir);
+                    	$tree.tree("appendNode", dir.getTreeRep());
+                    	$("#modal").modal('hide');
+                    });
+                });
+
+                $("#menu-import-workspace").click(function() {
+                    openModal("Export the Current Workspace", input, "Export", function() {
+                    	// TODO
+                    });
+                });
+                $("#menu-export-workspace").click(function() {
+                    openModal("Export the Current Workspace", input, "Export", function() {
+                    	var title = $("#modalName").val();
+                        var blob = new Blob([fs.export()], {type:"text/plain"});
+                    	saveAs(blob, title);
+                    });
+                });
+
+
+                // handle open
+                var handleOpen = function(evt) {
+                    var f = evt.target.files[0]; 
+                    if (!f) {
+                        alert("No file loaded.");
+                        } else {
+                        var fr = new FileReader();
+                        fr.onloadend = function(e) {
+                            if (e.target.readyState == FileReader.DONE) {
+                                editor.setValue(e.target.result);
+                            }
+                        };
+                        fr.readAsText(f);
+                    }
+                };
+                document.getElementById("inputOpen").addEventListener("change", handleOpen);
+                $('#menu-import-document').click(function() {
+                    $('#inputOpen').click();
+                    return true;
+                });
+
+                // save markdown
+                $("#menu-save").click(function() {
+                    var title = $("#saveName").val();
+                    if (title.indexOf(".md") < 0) {
+                        title += ".md";
+                    }
+                    var blob = new Blob([editor.getValue()], {type:"text/plain"});
+                    saveAs(blob, title);
+                });
+
+                // export as png 
+                $("#exportButton").click(function() {
+                    var title = $("#exportName").val();
+                    if (title.indexOf(".png") < 0) {
+                        title += ".png";
+                    }
+                    var preview = $("#preview").clone();
+                    preview.css("overflow", "");
+                    preview.css("height", "");
+                    preview.css("width", "");
+                    preview.css("top", "100%");
+                    $(document.body).append(preview);
+                    html2canvas(preview.get(0), {
+                        background: "#fff",
+                        onrendered: function(canvas) {
+                            canvas.toBlob(function(blob) {
+                                saveAs(blob, title);
+                                preview.remove();
+                            });
+                        }
+                    });
+                });
+
+            });
+        </script>
+    </head>
+
+    <body>
+
+        <div id="hidden" style="visibility: hidden;">
+            <input type="file" id="inputOpen"></input>
+        </div>
+
+        <nav class="navbar navbar-fixed-top navbar-default" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Markedly Better</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar-collapse">
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <ul class="nav navbar-nav">
+                <!-- File -->
+                <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">File</a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-submenu">
+                    <a id="menu-new" href="#">New</a>
+                    <ul class="dropdown-menu">
+                        <li><a id="menu-new-file" href="#">File</a></li>
+                        <li><a id="menu-new-folder" href="#">Folder</a></li>
+                    </ul>
+                    </li>
+                    <li><a id="menu-import-document" href="#">Import Document</a></li>
+                    <li class="divider"></li>
+                    <li><a id="menu-import-workspace" href="#">Import Workspace</a></li>
+                    <li><a id="menu-export-workspace" href="#">Export Workspace</a></li>
+                </ul>
+                </li>
+                <!-- Edit -->
+                <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Editor</a>
+                <ul class="dropdown-menu">
+
+                    <li class="dropdown-submenu">
+                    <a href="#">Font Size</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="fontsize" href="#">10</a></li>
+                        <li><a class="fontsize" href="#">11</a></li>
+                        <li><a class="fontsize" href="#">12</a></li>
+                        <li><a class="fontsize" href="#">14</a></li>
+                        <li><a class="fontsize" href="#">16</a></li>
+                        <li><a class="fontsize" href="#">18</a></li>
+                        <li><a class="fontsize" href="#">20</a></li>
+                        <li><a class="fontsize" href="#">24</a></li>
+                    </ul>
+                    </li>
+
+                    <li class="dropdown-submenu">
+                    <a href="#">Tab Size</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="tabsize" href="#">2</a></li>
+                        <li><a class="tabsize" href="#">4</a></li>
+                    </ul>
+                    </li>
+
+                    <li><a><input id="soft_tabs" class="pull-right" type="checkbox"></input>Use Soft Tabs</a></li>
+                    <li><a><input id="show_invisibles" class="pull-right" type="checkbox"></input>Show Invisibles</a></li>
+                    <li><a><input id="wrap_lines" class="pull-right" type="checkbox"></input>Wrap Lines</a></li>
+                    <li><a><input id="highlight_line" class="pull-right" type="checkbox"></input>Highlight Line</a></li>
+                    <li><a><input id="show_gutter" class="pull-right" type="checkbox"></input>Show Gutter</a></li>
+
+                    <li class="divider"></li>
+
+                    <li class="dropdown-submenu">
+                    <a href="#">Keybindings</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="keyboardHandler" href="#">Vim</a></li>
+                        <li><a class="keyboardHandler" href="#">Emacs</a></li>
+                    </ul>
+                    </li>
+
+                    <li class="dropdown-submenu">
+                    <a href="#">Color Scheme</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="theme" href="#">Ambiance</a></li>
+                        <li><a class="theme" href="#">Chaos</a></li>
+                        <li><a class="theme" href="#">Chrome</a></li>
+                        <li><a class="theme" href="#">Clouds</a></li>
+                        <li><a class="theme" href="#">Clouds Midnight</a></li>
+                        <li><a class="theme" href="#">Cobalt</a></li>
+                        <li><a class="theme" href="#">Crimson Editor</a></li>
+                        <li><a class="theme" href="#">Dawn</a></li>
+                        <li><a class="theme" href="#">Dreamweaver</a></li>
+                        <li><a class="theme" href="#">Eclipse</a></li>
+                        <li><a class="theme" href="#">Github</a></li>
+                        <li><a class="theme" href="#">Idle Fingers</a></li>
+                        <li><a class="theme" href="#">Kr</a></li>
+                        <li><a class="theme" href="#">Merbivore</a></li>
+                        <li><a class="theme" href="#">Merbivore Soft</a></li>
+                        <li><a class="theme" href="#">Mono Industrial</a></li>
+                        <li><a class="theme" href="#">Monokai</a></li>
+                        <li><a class="theme" href="#">Pastel on Dark</a></li>
+                        <li><a class="theme" href="#">Solarized Dark</a></li>
+                        <li><a class="theme" href="#">Solarized Light</a></li>
+                        <li><a class="theme" href="#">Terminal</a></li>
+                        <li><a class="theme" href="#">Textmate</a></li>
+                        <li><a class="theme" href="#">Tomorrow</a></li>
+                        <li><a class="theme" href="#">Tomorrow Night</a></li>
+                        <li><a class="theme" href="#">Tomorrow Night Blue</a></li>
+                        <li><a class="theme" href="#">Tomorrow Night Bright</a></li>
+                        <li><a class="theme" href="#">Tomorrow Night Eighties</a></li>
+                        <li><a class="theme" href="#">Twilight</a></li>
+                        <li><a class="theme" href="#">Vibrant Ink</a></li>
+                        <li><a class="theme" href="#">Xcode</a></li>
+                    </ul>
+                    </li>
+                </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+                <li>
+                <a href="#">About</a>
+                </li>
+            </ul>
+        </div>
+        </nav>
+
+        <div id="modal" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a class="btn btn-default" data-dismiss="modal"><span class="fa fa-fw fa-times"></span></a>
+                        <h4 class="modal-title" id="modalTitle"></h4>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group">
+                            <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary" id="modalButton">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ul id="file-menu" class="dropdown-menu">
+            <li><a href="#file-rename"><i class="fa fa-fw fa-edit"></i> Rename</a></li>
+            <li><a href="#file-export"><i class="fa fa-fw fa-download"></i> Export</a></li>
+            <li><a href="#file-delete"><i class="fa fa-fw fa-trash-o"></i> Delete</a></li>
+        </ul>
+
+        <div id="splitter">
+            <div class="ui-layout-center" id="editor"></div>
+            <div class="ui-layout-east">
+                <div class="preview" id="preview"></div>
+                <div class="preview" id="buffer"></div>
+            </div>
+            <div class="ui-layout-west">
+                <div class="filesystem" id="filesystem">
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>
