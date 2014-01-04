@@ -168,9 +168,15 @@
                     "file-export": function (node) { alert('Export node: ' + node.name); },
                     "file-delete": function (node) { 
                     	var dir = getDir(node.parent.name);
-                    	var file = new FileDescriptor(node.name);
-                    	dir.removeChild(file);
-                    	file.destroy();
+                        if (node.isDirectory) {
+                        	var target = new DirectoryDescriptor(node.name);
+                            dir.removeChild(target);
+                            target.destroy();
+                        } else {
+                            var file = new FileDescriptor(node.name);
+                            dir.removeChild(file);
+                            file.destroy();
+                        }
                     	$tree.tree('removeNode', node);
                     }
                 });
