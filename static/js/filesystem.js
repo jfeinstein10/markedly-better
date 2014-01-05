@@ -29,7 +29,9 @@ function DirectoryDescriptor(title) {
         this.children = [];
     }
     this.isDirectory = true;
-    this.title = title;
+    if (title) {
+        this.title = title;
+    }
 };
 DirectoryDescriptor.prototype.addChild = function(file) {
     if (this.children.indexOf(file.storageIndex) < 0) {
@@ -103,7 +105,9 @@ function FileDescriptor(title) {
     initStorage(this, 'title');
     initStorage(this, 'contents');
     this.isDirectory = false;
-    this.title = title;
+    if (title) {
+        this.title = title;
+    }
 };
 FileDescriptor.prototype.getTreeRep = function() {
     return { label: this.title,
@@ -133,7 +137,7 @@ FileDescriptor.fromJSON = function(json) {
 
 
 //
-// Helper
+// Helpers
 //
 // obj must have a 'storageIndex' property
 var initStorage = function(obj, name) {
