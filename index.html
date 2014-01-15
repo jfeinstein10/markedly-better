@@ -1,106 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <title>Markedly Better</title>
+  <head>
+    <meta charset="UTF-8">
+    <title>Markedly Better</title>
 
-        <!--load styles-->
-        <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.css" />
-        <link rel="stylesheet" href="./js/libs/splitter.css" />
-        <link rel="stylesheet" href="./bower_components/jqtree/jqtree.css" />
-        <link rel="stylesheet" href="./bower_components/highlightjs/styles/default.css">
-        <link rel="stylesheet" href="./resources/fonts/Sans/cmun-sans.css" />
-        <link rel="stylesheet" href="./resources/fonts/Typewriter/cmun-typewriter.css" />
-        <link rel="stylesheet" href="./js/libs/tabdrop/css/tabdrop.css" />
-        <link rel="stylesheet" href="./css/style.css" />
+    <!--load styles-->
+    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="./js/libs/splitter.css" />
+    <link rel="stylesheet" href="./bower_components/jqtree/jqtree.css" />
+    <link rel="stylesheet" href="./bower_components/highlightjs/styles/default.css">
+    <link rel="stylesheet" href="./resources/fonts/Sans/cmun-sans.css" />
+    <link rel="stylesheet" href="./resources/fonts/Typewriter/cmun-typewriter.css" />
+    <link rel="stylesheet" href="./js/libs/tabdrop/css/tabdrop.css" />
+    <link rel="stylesheet" href="./css/style.css" />
 
-        <!--load libs-->
-        <script type="text/x-mathjax-config">
-            MathJax.Hub.Config({
-                tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
-            });
-        </script>
-        <script type="text/javascript" src="./bower_components/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
-        <script type="text/javascript" src="./js/libs/marked.js"></script>
-        <script type="text/javascript" src="./bower_components/highlightjs/highlight.pack.js"></script>
-        <script>
-            marked.setOptions({
-                highlight: function (code) {
-                    return hljs.highlightAuto(code).value;
-                }
-            });
-        </script>
-        <script type="text/javascript" src="./bower_components/ace-builds/src-min-noconflict/ace.js"></script>
-        <script type="text/javascript" src="./bower_components/jquery/jquery.min.js"></script>
-        <script type="text/javascript" src="./js/libs/tabdrop/js/bootstrap-tabdrop.js"></script>
-        <script type="text/javascript" src="./js/libs/store.js"></script>
-        <script type="text/javascript" src="./js/libs/keymage.js"></script>
+    <!--load libs-->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script type="text/javascript" src="./bower_components/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script type="text/javascript" src="./js/libs/marked.js"></script>
+    <script type="text/javascript" src="./bower_components/highlightjs/highlight.pack.js"></script>
+    <script>
+      marked.setOptions({
+        highlight: function (code) {
+          return hljs.highlightAuto(code).value;
+        }
+      });
+    </script>
+    <script type="text/javascript" src="./bower_components/ace-builds/src-min-noconflict/ace.js"></script>
+    <script type="text/javascript" src="./bower_components/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/libs/tabdrop/js/bootstrap-tabdrop.js"></script>
+    <script type="text/javascript" src="./js/libs/store.js"></script>
+    <script type="text/javascript" src="./js/libs/keymage.js"></script>
 
-        <!--require!-->
-        <script type="text/javascript" data-main="./js/main.js" src="./bower_components/requirejs/require.js"></script>
+    <!--require!-->
+    <script type="text/javascript" data-main="./js/main.js" src="./bower_components/requirejs/require.js"></script>
 
-    </head>
+  </head>
 
-    <body ng-app="markedly">
+  <body ng-app="markedly">
 
-        <div class="hidden">
-            <input type="file" id="fileOpen"></input>
-            <input type="file" id="dirOpen" nwdirectory></input>
-            <input type="file" id="fileSaveAs" nwsaveas></input>
-        </div>
+    <div class="hidden">
+      <input type="file" id="fileOpen"></input>
+      <input type="file" id="dirOpen" nwdirectory></input>
+      <input type="file" id="fileSaveAs" nwsaveas></input>
+    </div>
 
-        <div id="modal" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <a class="btn btn-default" data-dismiss="modal"><span class="fa fa-fw fa-times"></span></a>
-                        <h4 class="modal-title" id="modalTitle"></h4>
-                    </div>
-                    <div class="modal-body" id="modalBody">
-                    </div>
-                    <div class="modal-footer">
-                        <div class="btn-group">
-                            <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                            <button class="btn btn-primary" id="modalButton">Create</button>
-                        </div>
-                    </div>
-                </div>
+    <div id="modal" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <a class="btn btn-default" data-dismiss="modal"><span class="fa fa-fw fa-times"></span></a>
+            <h4 class="modal-title" id="modalTitle"></h4>
+          </div>
+          <div class="modal-body" id="modalBody">
+          </div>
+          <div class="modal-footer">
+            <div class="btn-group">
+              <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+              <button class="btn btn-primary" id="modalButton">Create</button>
             </div>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <bg-splitter orientation="horizontal" id="splitter-main">
-            <bg-pane start-size="200" min-size="50">
-            <div ng-controller="filepane-controller" class="filepane">
-                <div class="innerpane">
-                    <ui-tree ng-model="filesystem" load-fn="loadChildren" selected-id="123" attr-node-id="filepath">
-                    </ui-tree>
-                </div>
+    <bg-splitter orientation="horizontal" id="splitter-main">
+      <bg-pane start-size="200" min-size="50">
+        <div ng-controller="filepane-controller" class="filepane">
+          <div class="innerpane">
+            <ui-tree ng-model="filesystem" load-fn="loadChildren" selected-id="123" attr-node-id="filepath">
+            </ui-tree>
+          </div>
+        </div>
+      </bg-pane>
+      <bg-pane min-size="50">
+        <div ng-controller="tabs-controller">
+          <tabset id="tabs-main">
+            <tab ng-repeat="tab in tabs" select="tabSelect(tab)" remove="removeTab(tab)" heading="{{tab.title}}" active="tab.active">
+            </tab>
+          </tabset>
+        </div>
+        <bg-splitter class="under-tabs" orientation="horizontal">
+          <bg-pane min-size="50">
+            <div editor id="editor-main">
             </div>
-            </bg-pane>
-            <bg-pane min-size="50">
-                <div ng-controller="tabs-controller">
-                    <tabset id="tabs-main">
-                    <tab ng-repeat="tab in tabs" select="tabSelect(tab)" heading="{{tab.title}}" active="tab == activeTab">
-                        </tab>
-                    </tabset>
-                </div>
-                <bg-splitter orientation="horizontal">
-                    <bg-pane min-size="50">
-                        <div editor id="editor-main">
-                        </div>
-                    </bg-pane>
-                    <bg-pane min-size="50">
-                        <div class="preview" preview>
-                            <div id="preview"></div>
-                            <div id="buffer"></div>
-                        </div>
-                    </bg-pane>
-                </bg-splitter>
-            </bg-pane>
-        </div>
+          </bg-pane>
+          <bg-pane min-size="50">
+            <div class="preview" preview>
+              <div id="preview"></div>
+              <div id="buffer"></div>
+            </div>
+          </bg-pane>
+        </bg-splitter>
+      </bg-pane>
+  </bg-splitter>
 
-    </body>
+</body>
 
 </html>

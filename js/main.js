@@ -27,12 +27,14 @@ window.name = "NG_DEFER_BOOTSTRAP!";
 
 define(['angular', 
         'filepane',
+        'editor',
         'tabs',
         'menu',
         'directives'], 
 function(angular) {
     var app = angular.module('markedly', 
         ['markedly.directives',
+        'markedly.editor',
         'markedly.filepane',
         'markedly.tabs']);
 

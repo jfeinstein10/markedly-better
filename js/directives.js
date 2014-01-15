@@ -1,41 +1,13 @@
 define(['angular',
         'preview',
+        'storage',
         'libs/splitter'],
-function(angular, Preview) {
+function(angular, Preview, storage) {
 
     var gui = require('nw.gui'),
         win = gui.Window.get();
 
     return angular.module('markedly.directives', ['bgDirectives'])
-    .directive('editor', function($window) {
-        return {
-            link: function(scope, element, attrs) {
-                var editor = ace.edit(element[0]);
-                editor.setValue('');
-                editor.setTheme("ace/theme/solarized_dark");
-                editor.setKeyboardHandler("ace/keyboard/vim");
-                editor.getSession().setMode("ace/mode/markdown");
-                editor.getSession().setUseWrapMode(true);
-                // catch resize events
-                win.on('editor.resize', function() {
-                    editor.resize();
-                });
-                win.on('tab.select', function(contents) {
-                    editor.setValue(contents);
-                    editor.gotoLine(0);
-                });
-                // emit change events
-                editor.getSession().on('change', function(e) {
-                    win.emit('editor.change', editor.getValue());
-                });
-                // resize on window resize
-                var w = angular.element($window);
-                w.bind('resize', function() {
-                    win.emit('editor.resize');
-                });
-            }
-        };
-    })
     .directive('preview', function() {
         return {
             link: function(scope, element, attrs) {
@@ -45,6 +17,9 @@ function(angular, Preview) {
                 win.on('editor.change', function(text) {
                     preview.update(text);
                 });
+                if (storage.getActiveFile()) {
+                    preview.update(storage.getActiveFile().contents);
+                }
             }
         };
     })

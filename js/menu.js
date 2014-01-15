@@ -10,7 +10,7 @@ function() {
     });
     function menuItem(submenu, options, shortcut) {
         if (shortcut) {
-            keymage(shortcut, options.click);
+            keymage(shortcut, options.click, {preventDefault: true});
         }
         submenu.append(new gui.MenuItem(options));
     }
@@ -51,7 +51,6 @@ function() {
             win.emit('dir.open', dirpath);
         })
     }, 'defmod-shift-o');
-    sepItem(file);
     menuItem(file, {
         label: 'Save',
         click: function() {
@@ -64,12 +63,22 @@ function() {
             win.emit('file.saveas');
         }
     }, 'defmod-shift-s');
+    sepItem(file);
+    menuItem(file, {
+        label: 'Close File',
+        click: function() {
+            win.emit('file.close');
+        }
+    }, 'defmod-w');
+
+
     win.on('file.saveas', function() {
         var fn = openInput('#fileSaveAs', function(filepath) {
             win.emit('file.saveas.path', filepath);
         });
         fn();
     });
+
     menu.append(new gui.MenuItem({ label: 'File', submenu: file }));
 
     // EDIT
