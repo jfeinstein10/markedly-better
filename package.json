@@ -1,0 +1,11 @@
+{
+	"name": "markedly-better",
+	"main": "index.html",
+	"single-instance": true,
+	"window": {
+		"title": "Markedly Better",
+		"toolbar": true,
+		"width": 1024,
+		"height": 768
+	}
+}

@@ -1,0 +1,23 @@
+{
+    "name": "Markedly Better",
+    "version": "0.0.0",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components"],
+    "devDependencies": {
+    	"MathJax": "*",
+    	"jqtree": "*",
+    	"highlightjs": "*",
+    	"bootstrap": "*",
+    	"font-awesome": "*",
+        "angular": "*",
+        "angular-ui-bootstrap": "*",
+        "bg-splitter": "*",
+        "requirejs": "*",
+        "ace-builds": "*",
+        "keymaster": "*",
+        "jquery": "*",
+        "jquery-ui": "*"
+    }
+}
