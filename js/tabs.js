@@ -85,8 +85,74 @@ define(['angular',
           }
         });
         win.on('file.saveas.path', function(filepath) {
-          activeTab.filepath = filepath;
-          activeTab.title = path.basename(filepath);
+          for (var i = 0; i < $scope.tabs.length; i++) {
+            var tab = $scope.tabs[i];
+            if (tab == activeTab) {
+              tab.filepath = activeTab.filepath = filepath;
+              tab.title = activeTab.title = path.basename(filepath);
+            }
+          }
+          storage.saveActiveFile(activeTab);
+          $scope.$apply();
+          win.emit('file.save');
+        });
+
+        // export pdf
+        function getPdfTemplate(title, html) {
+          return ['<!DOCTYPE html>\n',
+          '<html>\n',
+          '<head>\n',
+          '<meta charset="utf-8">\n',
+          '<title>'+title+'</title>\n',
+          '<link rel="stylesheet" href="',
+          'https://stackedit.io/res-min/themes/base.css" />\n',
+          '<script type="text/x-mathjax-config">\n',
+          "MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, messageStyle: 'none'});\n",
+          '</script>\n',
+          '<script type="text/javascript" src="',
+          'https://stackedit.io/libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>\n',
+          '</head>\n',
+          '<body class="pdf">'+html+'</body>\n',
+          '</html>'].join("");
+        }
+        win.on('file.export_pdf', function() {
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', 'https://stackedit-htmltopdf.herokuapp.com/', true);
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+          xhr.setRequestHeader('page-size', 'A4');
+          xhr.responseType = 'blob';
+          xhr.onreadystatechange = function() {
+            if(this.readyState == 4) {
+              if(this.status == 200) {
+                var pdf = this.response;
+                saveAs(pdf, 'test.pdf');
+              }
+            }
+          };
+          var html = marked(activeTab.contents);
+          console.log(html);
+          var template = getPdfTemplate(activeTab.title, html);
+          console.log(template);
+          xhr.send(template);
+        });
+
+
+        // some shortcuts
+        keymage('ctrl-tab', function() {
+          var index = $scope.tabs.indexOf(activeTab) + 1;
+          if (index >= $scope.tabs.length) {
+            index = 0;
+          }
+          setActive($scope.tabs[index]);
+          $scope.$apply();
+        });
+        keymage('ctrl-shift-tab', function() {
+          var index = $scope.tabs.indexOf(activeTab) - 1;
+          if (index < 0) {
+            index = $scope.tabs.length - 1;
+          }
+          setActive($scope.tabs[index]);
+          $scope.$apply();
         });
 
         // restore if possible

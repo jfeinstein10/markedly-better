@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.css" />
     <link rel="stylesheet" href="./js/libs/splitter.css" />
     <link rel="stylesheet" href="./bower_components/jqtree/jqtree.css" />
-    <link rel="stylesheet" href="./bower_components/highlightjs/styles/default.css">
     <link rel="stylesheet" href="./resources/fonts/Sans/cmun-sans.css" />
     <link rel="stylesheet" href="./resources/fonts/Typewriter/cmun-typewriter.css" />
     <link rel="stylesheet" href="./js/libs/tabdrop/css/tabdrop.css" />
-    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/style.css" />    
+    <link rel="stylesheet" href="./css/code_solarized_dark.css">
+    <link rel="stylesheet" href="./css/preview_solarized_light.css" />
 
     <!--load libs-->
     <script type="text/x-mathjax-config">
@@ -35,6 +36,8 @@
     <script type="text/javascript" src="./bower_components/ace-builds/src-min-noconflict/ace.js"></script>
     <script type="text/javascript" src="./bower_components/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="./js/libs/tabdrop/js/bootstrap-tabdrop.js"></script>
+    <script type="text/javascript" src="./js/libs/FileSaver.js"></script>
+    <script type="text/javascript" src="./js/libs/Blob.js"></script>
     <script type="text/javascript" src="./js/libs/store.js"></script>
     <script type="text/javascript" src="./js/libs/keymage.js"></script>
 
@@ -74,7 +77,8 @@
       <bg-pane start-size="200" min-size="50">
         <div ng-controller="filepane-controller" class="filepane">
           <div class="innerpane">
-            <ui-tree ng-model="filesystem" load-fn="loadChildren" selected-id="123" attr-node-id="filepath">
+            <p style="margin-left: 24px; margin-bottom: 6px">Folders <i ng-click="refresh()" style="margin-right: 10px" class="pull-right fa fa-refresh"></i></p>
+            <ui-tree id="ui-tree" ng-model="filesystem" load-fn="loadChildren" selected-id="123" attr-node-id="filepath">
             </ui-tree>
           </div>
         </div>
@@ -92,7 +96,7 @@
             </div>
           </bg-pane>
           <bg-pane min-size="50">
-            <div class="preview" preview>
+            <div class="preview solarized-light" preview>
               <div id="preview"></div>
               <div id="buffer"></div>
             </div>

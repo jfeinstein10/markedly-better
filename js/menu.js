@@ -40,6 +40,12 @@ function() {
         }
     }, 'defmod-n');
     menuItem(file, {
+        label: 'New Directory',
+        click: function() {
+            win.emit('dir.new');
+        }
+    }, 'defmod-n');
+    menuItem(file, {
         label: 'Open...',
         click: openInput("#fileOpen", function(filepath) {
             win.emit('file.open', filepath);
@@ -63,6 +69,13 @@ function() {
             win.emit('file.saveas');
         }
     }, 'defmod-shift-s');
+    sepItem(file);
+    menuItem(file, {
+        label: 'Export PDF',
+        click: function() {
+            win.emit('file.export_pdf');
+        }
+    })
     sepItem(file);
     menuItem(file, {
         label: 'Close File',

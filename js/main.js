@@ -30,13 +30,15 @@ define(['angular',
         'editor',
         'tabs',
         'menu',
-        'directives'], 
+        'directives',
+        'libs/splitter'], 
 function(angular) {
     var app = angular.module('markedly', 
         ['markedly.directives',
         'markedly.editor',
         'markedly.filepane',
-        'markedly.tabs']);
+        'markedly.tabs',
+        'bgDirectives']);
 
     var $html = angular.element(document.getElementsByTagName('html')[0]);
     angular.element().ready(function() {

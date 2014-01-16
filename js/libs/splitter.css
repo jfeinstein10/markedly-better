@@ -41,7 +41,7 @@
 {
   left: 50%;
   right: 0px;
-  border-left: 1px solid #aaa;
+  border-left: 1px solid rgb(221, 221, 221);
 }
 
 
@@ -72,5 +72,5 @@
 {
   top: 50%;
   bottom: 0px;
-  border-top: 1px solid #aaa;
+  border-top: 1px solid rgb(221, 221, 221);
 }
